@@ -1,0 +1,54 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  read-address-s3
+
+  Sample SAM Template for read-address-s3
+
+Globals:
+  Function:
+    Timeout: 20
+
+Resources:
+  MyReadFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ReadAddressFunction
+      Handler: readaddress.App::handleRequest
+      Role: !GetAtt MyLambdaReadRole.Arn
+      Runtime: java11
+      Architectures:
+        - x86_64
+      MemorySize: 5120
+      Environment:
+        Variables:
+          PARAM1: VALUE
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /read-address
+            Method: get
+  MyLambdaReadRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: MyLambdaReadRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: S3AccessPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                Resource: arn:aws:s3:::my-address-bucket
+
+
